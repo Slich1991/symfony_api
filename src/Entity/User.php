@@ -6,25 +6,43 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
+#[ApiResource(
+    operations: [
+        new Get(normalizationContext: ['groups' => 'user:read']),
+        // new Put(denormalizationContext: ['groups' => 'user:item'], normalizationContext: ['groups' => 'user:read']),
+        new GetCollection(normalizationContext: ['groups' => 'user:list']),
+        // new Post(normalizationContext: ['groups' => 'user:write']),
+        // new Delete(denormalizationContext: ['groups' => 'user:delete']),
+    ],
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read', 'user:list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Groups(['user:write'])]
     private array $roles = [];
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['user:item', 'user:write'])]
     private ?string $password = null;
 
     public function getId(): ?int
@@ -57,6 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
+    #[Groups(['user:read', 'user:list'])]
     public function getRoles(): array
     {
         $roles = $this->roles;
