@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
+use App\State\UserPasswordHasher;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -20,7 +21,7 @@ use ApiPlatform\Metadata\GetCollection;
         new Get(normalizationContext: ['groups' => 'user:read']),
         // new Put(denormalizationContext: ['groups' => 'user:item'], normalizationContext: ['groups' => 'user:read']),
         new GetCollection(normalizationContext: ['groups' => 'user:list']),
-        new Post(normalizationContext: ['groups' => 'user:read'], denormalizationContext: ['groups' => 'user:write'], openapiContext: ['tags' => ['Auth']], uriTemplate: '/auth/register'),
+        new Post(processor: UserPasswordHasher::class, normalizationContext: ['groups' => 'user:read'], denormalizationContext: ['groups' => 'user:write'], openapiContext: ['tags' => ['Auth']], uriTemplate: '/auth/register'),
         new Delete(denormalizationContext: ['groups' => 'user:delete']),
     ],
 )]
