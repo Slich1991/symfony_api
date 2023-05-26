@@ -1,0 +1,9 @@
+<h1>¡Hello!</h1>
+
+<p>To reset your password, visit the following link</p>
+
+<a href="http://localhost:3000/auth/forgot-password/{{ resetToken.token }}">http://localhost:3000/auth/forgot-password/{{ resetToken.token }}</a>
+
+<p>This link will expire in {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+
+<p>¡Greetings!</p>

@@ -22,3 +22,11 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    ###> OPENAPI ###
+    App\OpenApi\Auth\RegistrationConfirmationDecorator:
+        decorates: 'api_platform.openapi.factory'
+
+    App\OpenApi\Auth\ResendVerificationEmailDecorator:
+        decorates: 'api_platform.openapi.factory'
+    ###< OPENAPI ###

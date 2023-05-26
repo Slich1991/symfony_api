@@ -9,6 +9,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -18,8 +20,8 @@ use ApiPlatform\Metadata\GetCollection;
         new Get(normalizationContext: ['groups' => 'user:read']),
         // new Put(denormalizationContext: ['groups' => 'user:item'], normalizationContext: ['groups' => 'user:read']),
         new GetCollection(normalizationContext: ['groups' => 'user:list']),
-        // new Post(normalizationContext: ['groups' => 'user:write']),
-        // new Delete(denormalizationContext: ['groups' => 'user:delete']),
+        new Post(normalizationContext: ['groups' => 'user:read'], denormalizationContext: ['groups' => 'user:write'], openapiContext: ['tags' => ['Auth']], uriTemplate: '/auth/register'),
+        new Delete(denormalizationContext: ['groups' => 'user:delete']),
     ],
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -31,11 +33,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:list', 'user:write'])]
     private ?string $email = null;
 
+    #[ORM\Column(type: 'boolean', options: ["default" => false])]
+    #[Groups(['user:read', 'user:list'])]
+    private $emailVerify = false;
+
     #[ORM\Column]
-    #[Groups(['user:write'])]
     private array $roles = [];
 
     /**
@@ -58,6 +63,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+    
+    public function getEmailVerify(): ?bool
+    {
+        return $this->emailVerify;
+    }
+
+    public function setEmailVerify(bool $emailVerify): self
+    {
+        $this->emailVerify = $emailVerify;
 
         return $this;
     }
