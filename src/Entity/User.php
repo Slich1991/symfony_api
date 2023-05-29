@@ -10,18 +10,41 @@ use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use App\State\UserPasswordHasher;
+use App\State\UserRestorePassword;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ApiResource(
     operations: [
         new Get(normalizationContext: ['groups' => 'user:read']),
-        // new Put(denormalizationContext: ['groups' => 'user:item'], normalizationContext: ['groups' => 'user:read']),
+        // new Put(
+        //     denormalizationContext: ['groups' => 'user:item'],
+        //     normalizationContext: ['groups' => 'user:read']
+        // ),
         new GetCollection(normalizationContext: ['groups' => 'user:list']),
-        new Post(processor: UserPasswordHasher::class, normalizationContext: ['groups' => 'user:read'], denormalizationContext: ['groups' => 'user:write'], openapiContext: ['tags' => ['Auth']], uriTemplate: '/auth/register'),
+        new Post(
+            processor: UserPasswordHasher::class,
+            normalizationContext: ['groups' => 'user:read'],
+            denormalizationContext: ['groups' => 'user:write'],
+            openapiContext: ['tags' => ['Auth']],
+            uriTemplate: '/auth/register'
+        ),
+        new Patch(
+            processor: UserRestorePassword::class,
+            denormalizationContext: ['groups' => 'user:forgot'],
+            openapiContext: ['tags' => ['Auth']],
+            uriTemplate: '/auth/forgot'
+        ),
+        new Post(
+            processor: UserRestorePassword::class,
+            denormalizationContext: ['groups' => 'user:restore'],
+            openapiContext: ['tags' => ['Auth']],
+            uriTemplate: '/auth/restore'
+        ),
         new Delete(denormalizationContext: ['groups' => 'user:delete']),
     ],
 )]
@@ -34,7 +57,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(['user:read', 'user:list', 'user:write'])]
+    #[Groups(['user:read', 'user:list', 'user:write', 'user:forgot'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'boolean', options: ["default" => false])]
@@ -44,11 +67,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
+    #[Groups(['user:restore'])]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private $restoreToken;
+
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(['user:item', 'user:write'])]
+    #[Groups(['user:item', 'user:write', 'user:restore'])]
     private ?string $password = null;
 
     public function getId(): ?int
@@ -106,6 +133,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function getRestoreToken(): ?string
+    {
+        return $this->restoreToken;
+    }
+
+    public function setRestoreToken(string $restoreToken): self
+    {
+        $this->restoreToken = $restoreToken;
 
         return $this;
     }

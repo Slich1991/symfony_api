@@ -38,3 +38,7 @@ services:
     App\State\UserPasswordHasher:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
+
+    App\State\UserRestorePassword:
+        bind:
+            $processor: '@api_platform.doctrine.orm.state.persist_processor'
