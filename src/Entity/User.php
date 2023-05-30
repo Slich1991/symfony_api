@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use App\State\UserPasswordHasher;
@@ -21,10 +22,15 @@ use App\State\UserRestorePassword;
 #[ApiResource(
     operations: [
         new Get(normalizationContext: ['groups' => 'user:read']),
-        // new Put(
-        //     denormalizationContext: ['groups' => 'user:item'],
-        //     normalizationContext: ['groups' => 'user:read']
-        // ),
+        new Put(
+            processor: UserPasswordHasher::class,
+            denormalizationContext: ['groups' => 'user:pass'],
+            normalizationContext: ['groups' => 'user:read']
+        ),
+        new Patch(
+            denormalizationContext: ['groups' => 'user:role'],
+            normalizationContext: ['groups' => 'user:read']
+        ),
         new GetCollection(normalizationContext: ['groups' => 'user:list']),
         new Post(
             processor: UserPasswordHasher::class,
@@ -65,6 +71,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $emailVerify = false;
 
     #[ORM\Column]
+    #[Groups(['user:role'])]
     private array $roles = [];
 
     #[Groups(['user:restore'])]
@@ -75,7 +82,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(['user:item', 'user:write', 'user:restore'])]
+    #[Groups(['user:pass', 'user:write', 'user:restore'])]
     private ?string $password = null;
 
     public function getId(): ?int
