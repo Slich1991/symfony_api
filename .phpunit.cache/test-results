@@ -1,0 +1,1 @@
+{"version":1,"defects":{"App\\Tests\\Functional\\ApiPlatform\\UserTest::testSomething":7,"App\\Tests\\Functional\\ApiPlatform\\UserTest::testRegistration":7},"times":{"App\\Tests\\Functional\\ApiPlatform\\UserTest::testSomething":0.256,"App\\Tests\\Functional\\ApiPlatform\\UserTest::testRegistration":0.16,"App\\Tests\\Functional\\ApiPlatform\\UserTest::testGetUsers":0.029}}

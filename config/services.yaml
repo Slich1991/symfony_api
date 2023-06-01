@@ -42,3 +42,6 @@ services:
     App\State\UserRestorePassword:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
+
+    App\Security\UserChecker:
+        public: true
