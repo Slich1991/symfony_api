@@ -2,7 +2,7 @@ security:
     # enable_authenticator_manager: true
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        App\Entity\User: 'auto'
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         # used to reload user from session & other features (e.g. switch_user)
@@ -11,24 +11,20 @@ security:
                 class: App\Entity\User
                 property: email
     firewalls:
-        login:
-            pattern: ^/api
+        dev:
+            pattern: ^/_(profiler|wdt)
+            security: false
+        main:
             stateless: true
             provider: app_user_provider
             user_checker: App\Security\UserChecker
             json_login:
+                check_path: /api/auth/login # The name in routes.yaml is enough for mapping
                 username_path: email
-                check_path: /api/auth/login
+                password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
-
-        api:
-            pattern:   ^/api
-            stateless: true
             jwt: ~
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -39,6 +35,10 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/api/users, roles: ROLE_ADMIN, method: GET}
+        - { path: ^/api/users, roles: ROLE_ADMIN, method: PATCH}
+        - { path: ^/api/users, roles: ROLE_ADMIN, method: DELETE}
+        - { path: ^/api/users, roles: ROLE_USER, method: PUT}
         # - { path: ^/api/users, roles: ROLE_ADMIN, method: GET}
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }

@@ -80,4 +80,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function update(string $field, $mixedValue, string $key, $value): void
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $q = $qb->update('App\Entity\User', 'u')
+            ->where("u.".$key." LIKE '".$value."'")
+            ->set('u.'.$field, "'".json_encode($mixedValue)."'")
+            ->getQuery();
+        // dd($q);
+        $p = $q->execute();
+        // dd($p);
+    }
 }
