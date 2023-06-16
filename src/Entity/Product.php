@@ -4,13 +4,14 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiFilter;
 use App\Filter\ProductFilter;
+use App\Entity\ProductImage;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
 use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\Types;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,6 +22,8 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Post(),
         new Get(),
+        new Patch(),
+        new Delete(),
         new GetCollection(),
     ],
 )]
@@ -59,6 +62,10 @@ class Product
 
     #[ORM\Column]
     private ?bool $visible = null;
+
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductImage::class)]
+    #[ApiProperty(types: ['https://schema.org/image'])]
+    public ?ProductImage $image = null;
 
     public function getId(): ?int
     {
